@@ -126,4 +126,48 @@ Matchers são funções que verificam se o resultado atual é o esperado, alguns
     `expect(1, isInstanceOf<int>());`
 
 ### com Mocktail(mocks e stubs)
-em breve resumo sobre mocks e stubs
+
+**Mocks e stubs**: São conceitos utilizados em testes de unidades para substituir o objeto real por um objeto simulado.
+
+**Mocks**: Um mock registra informações sobre as chamadas que foram feitas a ele, permitindo que você verifique se um método foi chamado com os parâmetros corretos ou um número específico de vezes.
+```Dart
+    class MockAuthService extends Mock implements AuthService {}
+```
+
+**Stubs**: fornecem respostas predeterminadas a chamadas de métodos durante os testes. Eles são usados principalmente para isolar o código que está sendo testado de outras partes do sistema e para controlar os cenários de teste.
+```Dart
+    //para retornos async use when().thenAnswer()
+    when(() => authService.login('email', 'password')).thenAnswer((_) async => User());
+    //para retornos sync use when().thenReturn()
+    when(() => authService.login('email', 'password')).thenReturn(User());
+    //para retornar exceções use when().thenThrow()
+    when(() => authService.login('email', 'password')).thenThrow(Exception());
+```
+**Exemplo de teste com Mocktail**
+```Dart
+  import 'package:mocktail/mocktail.dart';
+
+    class AuthService  {
+      Future<User> login(String email, String password) async {
+        return User();
+      } 
+    }
+    //mock
+    class MockAuthService extends Mock implements AuthService {}
+
+    main() {
+      test('login', () async {
+        //arrange
+        final authService = MockAuthService(); 
+        //stub
+        when(() => authService.login('email', 'password')).thenAnswer((_) async => User());
+        //act
+        final user = await authService.login('email', 'password');
+        //assert
+        expect(user, isA<User>());
+      });
+    }
+
+
+
+```
